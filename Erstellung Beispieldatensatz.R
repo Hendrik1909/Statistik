@@ -203,6 +203,7 @@ simulateData <- function(rohdaten, n = 100, seednr = 161){
 
 #Funktion in Dataframe umwandeln/abspeichern
 x <- simulateData(dat, n=1000)
+x$ID <- 1:nrow(x) # NEU
 
 #als Datensatz abspeichern 
 save(x, file = "Beispieldatensatz.RData")
