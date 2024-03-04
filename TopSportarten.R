@@ -42,6 +42,7 @@ z$`OF Gesamt` <- str_extract(z$`Sportart (OF) Gesamt`, pattern = "\\(.*")
 
 # tabelle nach SA und OF:
 xtabs(~`OF Gesamt` + `Sportart Gesamt`, data = z)
+
 # tabelle nach SA und OF -> in %
 rowPerc(xtabs(~`OF Gesamt` + `Sportart Gesamt`, data = z))
 
@@ -65,3 +66,11 @@ xtabs(~ `OF Gesamt` + `Sportart Gesamt`+ Geschlecht + Altergruppe, data = z)
 xtabs(~ `OF Gesamt` + `Sportart Gesamt`, data = z[z$Geschlecht == "w" & z$Altergruppe == "60+", ])
 #ODER für %-Angaben
 rowPerc(xtabs(~ `OF Gesamt` + `Sportart Gesamt`, data = z[z$Geschlecht == "w" & z$Altergruppe == "60+", ]))
+
+######################
+# FÜR PRÄVALENZ FÜR SPORTARTEN
+xtabs(~ `Sportart Gesamt`, data = y)
+sum(xtabs(~ `Sportart Gesamt`, data = y))
+rowPerc(xtabs(~ `Sportart Gesamt`, data = y))
+# Anzahl der Sportler gesamt (60.000.000)
+(rowPerc(xtabs(~ `Sportart Gesamt`, data = y)) / 100) * 60
