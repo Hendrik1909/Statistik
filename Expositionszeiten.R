@@ -18,6 +18,8 @@ y$Expositionszeit_SA[y$`Sportart 1-3` == "Sportart 1"] <- rowSums(y[y$`Sportart 
 y$Expositionszeit_SA[y$`Sportart 1-3` == "Sportart 2"] <- rowSums(y[y$`Sportart 1-3` == "Sportart 2", 14:15], na.rm = TRUE)
 y$Expositionszeit_SA[y$`Sportart 1-3` == "Sportart 3"] <- rowSums(y[y$`Sportart 1-3` == "Sportart 3", 16:17], na.rm = TRUE)
 
+##Hier wird zuerst ein "NULL"-Vektor erstellt, sonst wird ein Fehler angezeigt 
+
 hauptSA <- NULL
 zweitSA <- NULL
 drittSA <- NULL
@@ -120,28 +122,34 @@ xtabs(~ `OF Gesamt` + `Sportart Gesamt`, data = z[z$Geschlecht == "w" & z$Alterg
 
 
 #### NEU Expositionszeiten 
-xtabs(Expositionszeit ~ `Sportart Gesamt`, data = z)
-# auf alle Sportler:
-xtabs(Expositionszeit ~ `Sportart Gesamt`, data = z) / nrow(x)
 
-###Standardfehler berechnen -> Value
+#Expositionszeiten nach Sportart (Summe jeder einzelenen Sportart)
+xtabs(Expositionszeit ~ `Sportart Gesamt`, data = z)
+#Expositionszeiten - Summe alle Sportler
+sum(xtabs(Expositionszeit ~ `Sportart Gesamt`, data = z))
+
+###Standardfehler berechnen -> Value (weil in FUN nicht verfügbar)
 std.error <- function(x1) sd(x1)/sqrt(length(x1))
 
-# in der jeweiligen sportart:
-aggregate(Expositionszeit ~ `Sportart Gesamt`, data = z, FUN = mean, na.rm = TRUE) 
-#Berechnung std.Error ; Wichtig: "na.rm" entfernen
+### Berechnung Durchschnittliche Expositionszeit pro Sportler
+# FUN = Funktion ; in FUN nicht std.error nicht verfügabr) daher"na.rm" entfernen
+
+#Nach Sportart
+aggregate(Expositionszeit ~ `Sportart Gesamt`, data = z, FUN = mean, na.rm = TRUE)
 aggregate(Expositionszeit ~ `Sportart Gesamt`, data = z, FUN = std.error)
-# alle moeglichen gruppen (rest Hausaufgabe!):
-## 
+
+#Nach Geschlecht
 aggregate(Expositionszeit ~ Geschlecht, data = z, FUN = mean, na.rm = TRUE) 
 aggregate(Expositionszeit ~ Geschlecht, data = z, FUN = std.error) 
 
+#Nach Altergruppe
 aggregate(Expositionszeit ~ Altergruppe, data = z, FUN = mean, na.rm = TRUE) 
 aggregate(Expositionszeit ~ Altergruppe, data = z, FUN = std.error) 
 
+#Nach Organisationsform
 aggregate(Expositionszeit ~ `OF Gesamt`, data = z, FUN = mean, na.rm = TRUE)
 aggregate(Expositionszeit ~ `OF Gesamt`, data = z, FUN = std.error)
 
+#Nach Organisationsform + Sportart + Geschlecht + Altergruppe 
 aggregate(Expositionszeit ~ `OF Gesamt` + `Sportart Gesamt` + Geschlecht + Altergruppe, data = z, FUN = mean, na.rm = TRUE)
 aggregate(Expositionszeit ~ `OF Gesamt` + `Sportart Gesamt` + Geschlecht + Altergruppe, data = z, FUN = std.error)
-
