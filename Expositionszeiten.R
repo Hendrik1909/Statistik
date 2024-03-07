@@ -6,7 +6,6 @@ load("Beispieldatensatz.RData") # erstellt mit: Erstellung Beispieldatensatz.R
 ##### NEU: durchschnittl. anzahl sportarten 
 mean(rowSums(!is.na(x[, 6:8])))
 
-
 # sportarten in eine variable zusammenfassen:
 y <- gather(x, key = "Sportart 1-3", value ="Sportart Gesamt", 6:8)
 
@@ -124,9 +123,9 @@ xtabs(~ `OF Gesamt` + `Sportart Gesamt`, data = z[z$Geschlecht == "w" & z$Alterg
 #### NEU Expositionszeiten 
 
 #Expositionszeiten nach Sportart (Summe jeder einzelenen Sportart)
-xtabs(Expositionszeit ~ `Sportart Gesamt`, data = z)
+xtabs(Expositionszeit_SA ~ `Sportart Gesamt`, data = y)
 #Expositionszeiten - Summe alle Sportler
-sum(xtabs(Expositionszeit ~ `Sportart Gesamt`, data = z))
+sum(xtabs(Expositionszeit_SA ~ `Sportart Gesamt`, data = y))
 
 ###Standardfehler berechnen -> Value (weil in FUN nicht verfügbar)
 std.error <- function(x1) sd(x1)/sqrt(length(x1))
@@ -135,6 +134,9 @@ std.error <- function(x1) sd(x1)/sqrt(length(x1))
 # FUN = Funktion ; in FUN nicht std.error nicht verfügabr) daher"na.rm" entfernen
 
 #Nach Sportart
+aggregate(Expositionszeit_SA ~ `Sportart Gesamt`, data = y, FUN = mean, na.rm = TRUE)
+aggregate(Expositionszeit_SA ~ `Sportart Gesamt`, data = y, FUN = std.error)
+
 aggregate(Expositionszeit ~ `Sportart Gesamt`, data = z, FUN = mean, na.rm = TRUE)
 aggregate(Expositionszeit ~ `Sportart Gesamt`, data = z, FUN = std.error)
 
