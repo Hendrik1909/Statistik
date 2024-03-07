@@ -13,7 +13,7 @@ y <- gather(x, key = "Sportart 1-3", value ="Sportart Gesamt", 6:8)
 # haeufigkeiten aller sportarten:
 sort(table(y$`Sportart Gesamt`), decreasing = TRUE)
 
-###### NEU: Hauptsportart:
+###### NEU: Hauptsportart:Expositionszeiten
 y$Expositionszeit_SA[y$`Sportart 1-3` == "Sportart 1"] <- rowSums(y[y$`Sportart 1-3` == "Sportart 1", 12:13], na.rm = TRUE)
 y$Expositionszeit_SA[y$`Sportart 1-3` == "Sportart 2"] <- rowSums(y[y$`Sportart 1-3` == "Sportart 2", 14:15], na.rm = TRUE)
 y$Expositionszeit_SA[y$`Sportart 1-3` == "Sportart 3"] <- rowSums(y[y$`Sportart 1-3` == "Sportart 3", 16:17], na.rm = TRUE)
@@ -27,13 +27,20 @@ for(i in 1:nrow(x)){
   drittSA[i] <- sort(y$Expositionszeit_SA[y$ID == i], decreasing = TRUE)[3]
 }
 SAs <- data.frame(hauptSA, zweitSA, drittSA)
-rm(hauptSA, zweitSA, drittSA)# aufraeumen
+# aufraeumen
+rm(hauptSA, zweitSA, drittSA)
+#Summe (Stunden ingesamt in der 1.,2. & 3. Spoartart) / Durchschnitt (Stunden durchschnitt in der 1.,2. & 3. Spoartart)
 colSums(SAs)
 colMeans(SAs)
+#Wie viel % die 1.,2. & 3. Spoartart ausmacht
 rowPerc(colMeans(SAs))
 
 
-#### jetzt gekoppelt mit organisationsform. benutze wieder ursprungsdatensatz x:
+## !!!! AB HIER "TOPsportarten.R" !!!! ##
+### -> Brauchen wir hier, weil ich dort (in "z") die Sportarten und Settings einzelnd aufgelistet haben ###
+
+
+#### jetzt gekoppelt mit organisationsform. benutze wieder Ursprungsdatensatz x:
 x$SA1OFA <- paste0(x$`Sportart 1`, " (", x$`Organisationsform A - Sportart 1`, ")")
 x$SA1OFB <- paste0(x$`Sportart 1`, " (", x$`Organisationsform B - Sportart 1`, ")")
 
@@ -64,14 +71,18 @@ round(prop.table(table(z$`Sportart (OF) Gesamt`)), digits = 4) * 100
 z$`Sportart Gesamt` <- str_remove(z$`Sportart (OF) Gesamt`, pattern = "\\ .*")
 z$`OF Gesamt` <- str_extract(z$`Sportart (OF) Gesamt`, pattern = "\\(.*")
 
-###### NEU Vereinszahl######
+###### NEU Vereinszahl ######
 z$Vereinszahl <- NULL
 z$Expositionszeit <- NULL
+
+
+## !!!! BIS HIER TOPsportarten.R" !!!! ##
+
 
 for(i in 1:nrow(x)){
   # vereinszahl:
   z$Vereinszahl[z$ID == i] <- sum(z$`OF Gesamt`[z$ID == i] == "(Verein)", na.rm = TRUE)
-  # expositionszeit:
+  # expositionszeit: (unique, weil die Zahl sonst 6x ausgegeben wird, weil jede Person 6x abgespeichert ist)
   z$Expositionszeit[z$ID == i] <- NA
   z$Expositionszeit[z$ID == i][1] <- unique(z[z$ID == i, 15])
   z$Expositionszeit[z$ID == i][2] <- unique(z[z$ID == i, 16])
@@ -80,6 +91,9 @@ for(i in 1:nrow(x)){
   z$Expositionszeit[z$ID == i][5] <- unique(z[z$ID == i, 19])
   z$Expositionszeit[z$ID == i][6] <- unique(z[z$ID == i, 20])
 }
+
+## Wie viel % von den Vereinsmitgliedern sind noch in einem anderen Verein Mitglied ##
+# unique, weil ich mir jede Person nur 1x angucke #
 z$Vereinszahl[unique(z$ID)]
 prop.table(table(z$Vereinszahl[unique(z$ID)]))
 prop.table(table(z$Vereinszahl[unique(z$ID)])[-1])
@@ -103,14 +117,31 @@ xtabs(~ `OF Gesamt` + `Sportart Gesamt`+ Geschlecht + Altergruppe, data = z)
 # ODER z.B.:
 xtabs(~ `OF Gesamt` + `Sportart Gesamt`, data = z[z$Geschlecht == "w" & z$Altergruppe == "60+", ])
 
+
+
 #### NEU Expositionszeiten 
 xtabs(Expositionszeit ~ `Sportart Gesamt`, data = z)
 # auf alle Sportler:
 xtabs(Expositionszeit ~ `Sportart Gesamt`, data = z) / nrow(x)
+
+###Standardfehler berechnen -> Value
+std.error <- function(x1) sd(x1)/sqrt(length(x1))
+
 # in der jeweiligen sportart:
 aggregate(Expositionszeit ~ `Sportart Gesamt`, data = z, FUN = mean, na.rm = TRUE) 
+#Berechnung std.Error ; Wichtig: "na.rm" entfernen
+aggregate(Expositionszeit ~ `Sportart Gesamt`, data = z, FUN = std.error)
 # alle moeglichen gruppen (rest Hausaufgabe!):
+## 
 aggregate(Expositionszeit ~ Geschlecht, data = z, FUN = mean, na.rm = TRUE) 
+aggregate(Expositionszeit ~ Geschlecht, data = z, FUN = std.error) 
+
 aggregate(Expositionszeit ~ Altergruppe, data = z, FUN = mean, na.rm = TRUE) 
+aggregate(Expositionszeit ~ Altergruppe, data = z, FUN = std.error) 
+
 aggregate(Expositionszeit ~ `OF Gesamt`, data = z, FUN = mean, na.rm = TRUE)
+aggregate(Expositionszeit ~ `OF Gesamt`, data = z, FUN = std.error)
+
 aggregate(Expositionszeit ~ `OF Gesamt` + `Sportart Gesamt` + Geschlecht + Altergruppe, data = z, FUN = mean, na.rm = TRUE)
+aggregate(Expositionszeit ~ `OF Gesamt` + `Sportart Gesamt` + Geschlecht + Altergruppe, data = z, FUN = std.error)
+
