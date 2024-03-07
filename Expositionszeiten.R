@@ -11,6 +11,7 @@ y <- gather(x, key = "Sportart 1-3", value ="Sportart Gesamt", 6:8)
 
 # haeufigkeiten aller sportarten:
 sort(table(y$`Sportart Gesamt`), decreasing = TRUE)
+sum(sort(table(y$`Sportart Gesamt`), decreasing = TRUE))
 
 ###### NEU: Hauptsportart:Expositionszeiten
 y$Expositionszeit_SA[y$`Sportart 1-3` == "Sportart 1"] <- rowSums(y[y$`Sportart 1-3` == "Sportart 1", 12:13], na.rm = TRUE)
@@ -76,6 +77,7 @@ z$`OF Gesamt` <- str_extract(z$`Sportart (OF) Gesamt`, pattern = "\\(.*")
 z$Vereinszahl <- NULL
 z$Expositionszeit <- NULL
 
+sum(z$Vereinszahl)
 
 ## !!!! BIS HIER TOPsportarten.R" !!!! ##
 
@@ -155,3 +157,4 @@ aggregate(Expositionszeit ~ `OF Gesamt`, data = z, FUN = std.error)
 #Nach Organisationsform + Sportart + Geschlecht + Altergruppe 
 aggregate(Expositionszeit ~ `OF Gesamt` + `Sportart Gesamt` + Geschlecht + Altergruppe, data = z, FUN = mean, na.rm = TRUE)
 aggregate(Expositionszeit ~ `OF Gesamt` + `Sportart Gesamt` + Geschlecht + Altergruppe, data = z, FUN = std.error)
+
